@@ -56,41 +56,41 @@ create_dir_fun <- function(outDir,out_suffix=NULL){
 }
 
 #Benoit setup
-script_path <- "/media/dan/Data/trend_and_harmonic_regression/scripts"
+script_path <- "~/Documents/code/trends_harmonic_patterns/"
 
-harmonic_regression_functions <- "harmonic_regression_functions_06042019.R"
-trend_methods_time_series_functions <- "trend_methods_time_series_functions_06102019.R"
+harmonic_regression_functions <- "harmonic_regression_functions.R"
+trend_methods_time_series_functions <- "trend_methods_time_series_functions.R"
 source(file.path(script_path,harmonic_regression_functions))
 source(file.path(script_path,trend_methods_time_series_functions))
 
 ############################################################################
 #####  Parameters and argument set up ###########
 
-#ARGS 1
-in_dir <- "/media/dan/Data/trend_and_harmonic_regression/data"
-#data in:/media/dan/processed/MOD13A1/latlong
-#ARGS 2
-out_dir <- "/media/dan/Data/trend_and_harmonic_regression/outputs"
-#ARGS 3
-infile_name_raster <- "Ouagadougou_MOD13A1_006_NDVI_2001_2016.tif"
-
-#ARGS 4
-#start_date <- "2004-01-01"
-start_date <- "2012-11-01"  #new data starts in November 2012
-#ARGS 5
-end_date <- NULL
-#ARGS 6
-create_out_dir_param=TRUE #create a new ouput dir if TRUE
-#ARGS 7
-out_suffix <-"Ouagadougou_MOD13A1_006_NDVI" #output suffix for the files and ouptut folder #param 12
-#ARGS 8
-num_cores <- 3 # number of cores
-#ARGS 9
-file_format <- ".tif"
-#ARGS 10
-#range_window <- c("2012-01-01","2017-01-01")
-#ARGS 11
-out_prefix <- NULL
+# #ARGS 1
+# in_dir <- "/media/dan/Data/trend_and_harmonic_regression/data"
+# #data in:/media/dan/processed/MOD13A1/latlong
+# #ARGS 2
+# out_dir <- "/media/dan/Data/trend_and_harmonic_regression/outputs"
+# #ARGS 3
+# infile_name_raster <- "Ouagadougou_MOD13A1_006_NDVI_2001_2016.tif"
+# 
+# #ARGS 4
+# #start_date <- "2004-01-01"
+# start_date <- "2012-11-01"  #new data starts in November 2012
+# #ARGS 5
+# end_date <- NULL
+# #ARGS 6
+# create_out_dir_param=TRUE #create a new ouput dir if TRUE
+# #ARGS 7
+# out_suffix <-"Ouagadougou_MOD13A1_006_NDVI_test" #output suffix for the files and ouptut folder #param 12
+# #ARGS 8
+# num_cores <- 3 # number of cores
+# #ARGS 9
+# file_format <- ".tif"
+# #ARGS 10
+# #range_window <- c("2012-01-01","2017-01-01")
+# #ARGS 11
+# out_prefix <- NULL
 
 ################# START SCRIPT ###############################
 
@@ -121,14 +121,24 @@ infile_name_raster <- file.path(in_dir,infile_name_raster)
 #
 #data_df <- read.table(infile_name,header=T,sep=",",stringsAsFactors = F)
 r <- brick(infile_name_raster)
+
+#if from VIIRS, add three blank layers because coverage didn't start until mid year 2012
+if(grepl('VCMCFG', infile_name_raster)){
+  r = brick(list(r[[1]] * NA,r[[1]] * NA, r[[1]] * NA, r))
+}
+
+if(grepl('LST', infile_name_raster)){
+  r = brick(list(r[[1]], r))
+}
+
 names(r)
 #if not true, we have missing layers, this should be spotted using the time series names(dates)/
 #Date should be added as descriptions in the tif!!
-nlayers(r)==16*23
+#nlayers(r)==16*23
 
-plot(r,y=1)
-NAvalue(r)
-plot(r,y=14,colNA="black")
+#plot(r,y=1)
+#NAvalue(r)
+#lot(r,y=14,colNA="black")
 
 if(is.null(out_prefix)){
   out_prefix <- basename(sub(file_format,"",infile_name_raster))
@@ -146,7 +156,7 @@ var_name <- "A0" #mean value from Harmonic Fourier
 raster_name <- paste0(out_prefix,"_amplitude_year",file_format)
 file_format <- file_format
 multiband <- FALSE
-window_val <- 23
+window_val <- window_val_select
 
 
 #test <- harmonic_reg_raster(y,var_name,
@@ -174,7 +184,7 @@ var_name <- "A"
 raster_name <- paste0(out_prefix,"_amplitude_year",file_format)
 #file_format <- ".tif" #set above
 multiband <- FALSE
-window_val <- 23
+window_val <- window_val_select
 
 #debug(calcHarmonicRaster)
 
@@ -199,7 +209,7 @@ raster_name <- paste0(out_prefix,"_year",file_format)
 
 file_format <- ".tif"
 multiband <- FALSE
-window_val <- 23
+window_val <- window_val_select
 
 #debug(calcHarmonicRaster)
 
