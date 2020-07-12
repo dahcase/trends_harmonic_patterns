@@ -10,7 +10,10 @@ r = readAll(brick(infile_name_raster))
 mkcalc = function(x){
   if(all(is.na(x))) return(NA)
   
-  a = MannKendall(x)
+  hold = capture.output(a <- MannKendall(x))
+  
+  if(length(hold)>0 && grepl('WARNING', hold)) return(NA)
+  
   return(a[[2]][1])
   
 }
@@ -27,6 +30,6 @@ rr[] = res[, V1]
 
 #save the raster
 bn =  file_path_sans_ext(basename(infile_name_raster))
-writeRaster(rr, filename = file.path(out_dir,paste0('output_',bn),paste0(bn, '_mk.tif')))
+writeRaster(rr, filename = file.path(out_dir,paste0('output_',bn),paste0(bn, '_mksig.tif')), overwrite = TRUE)
 
 
