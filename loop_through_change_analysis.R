@@ -3,7 +3,7 @@ library('data.table')
 
 sg = readRDS('/media/dan/summary_grid.rds')
 
-ras2run = sg[time == "" & funk == "" & variables == 'LST_Night_1km',]
+ras2run = sg[time == "" & funk == "" & variables %in% c('LST_Night_1km', 'EVI', 'avg_rad', 'LST_Day_1km'),]
 
 for(sss in 1:nrow(ras2run)){
   print(paste(Sys.time(), sss))
@@ -35,8 +35,8 @@ for(sss in 1:nrow(ras2run)){
   
   window_val_select <- 46 #windowing-- usually refers to the number of layers in a year
   
-  source('~/Documents/code/trends_harmonic_patterns/change_analysis_regression.R')
-  
+  #source('~/Documents/code/trends_harmonic_patterns/change_analysis_regression.R')
+  source('~/Documents/code/trends_harmonic_patterns/mankendall.R')
   print(paste(Sys.time(), sss))
   
   
