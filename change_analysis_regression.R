@@ -117,10 +117,10 @@ if(create_out_dir_param==TRUE){
   #set up the working directory
 #Create output directory
   
-infile_name_raster <- file.path(in_dir,infile_name_raster)
+infile_name_raster <- file.path(in_dir,inr)
 #
 #data_df <- read.table(infile_name,header=T,sep=",",stringsAsFactors = F)
-r <- brick(infile_name_raster)
+r <- readAll(brick(infile_name_raster))
 
 #if from VIIRS, add three blank layers because coverage didn't start until mid year 2012
 if(grepl('VCMCFG', infile_name_raster)){
