@@ -43,15 +43,15 @@ pixel_fit = function(x, dates, sps = 10, ui = .8, nmcmc = 0){
 get_preds = function(px, oex, sps = 10, ui = .8, nmcmc = 0){
   mods = lapply(px, function(x) pixel_fit(oex[id %in% x, value], oex[id %in% x, ds], sps = sps, ui = ui, nmcmc = nmcmc))
   stopifnot(all(vapply(mods, function(x) inherits(x, 'prophet'), TRUE)))
-  preds = lapply(px, function(x) setDT(predict(mods[[which(px %in% x)]], oex[id %in% x]))[, .(id = x, ds, type = 'pred', value = yhat, yhat_lower, yhat_upper)])
+  preds = lapply(px, function(x) setDT(predict(mods[[which(px %in% x)]], oex[id %in% x]))[,id:=x])
   preds = rbindlist(preds)
   preds[, ds := as.Date(ds)]
   oex[, type := 'original']
   oex = oex[id %in% px]
-  oex = merge(oex, preds[, .(id, ds, yhat_lower, yhat_upper)], all.x = T, by = c('id','ds'))
-  res = rbind(oex[id %in% px], preds, fill = T)
+  oex = merge(oex, preds, all.x = T, by = c('id','ds'))
+  #res = rbind(oex[id %in% px], preds, fill = T)
   
-  return(res)
+  return(oex)
 }
 
 
@@ -63,55 +63,73 @@ a3 = get_preds(px, oex, sps = 20, ui = .8, nmcmc = 0)
 saveRDS(list(a1,a2,a3), '/media/dan/a1-3_prophet.rds')
 
 #compare MCMC w/ MAP
-mcmcmap = merge(a1[type == 'pred', .(id, ds, mval = value, mlow = yhat_lower, mupp = yhat_upper)],
-                a2[type == 'pred', .(id, ds, mcval = value, mclow = yhat_lower, mcupp = yhat_upper)],
-                by = c('id','ds'), all.x = T)
+# mcmcmap = merge(a1[type == 'pred', .(id, ds, mval = value, mlow = yhat_lower, mupp = yhat_upper)],
+#                 a2[type == 'pred', .(id, ds, mcval = value, mclow = yhat_lower, mcupp = yhat_upper)],
+#                 by = c('id','ds'), all.x = T)
 
-g1 = ggplot(mcmcmap, aes(x = mval, y =  mcval)) + theme_dark() + geom_point() + 
-  facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
-  ggtitle('MCMC vs. Map, yhat')
+pdf('/media/dan/prophet_pixel_cd_test.pdf', width = 10, height = 9)
 
-plot(g1)
-
-g2 = ggplot(mcmcmap, aes(x = mlow, y =  mclow)) + theme_dark() + geom_point() + 
-  facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
-  ggtitle('MCMC vs. Map, lower')
-
-plot(g2)
-
-g3 = ggplot(mcmcmap, aes(x = mupp, y =  mcupp)) + theme_dark() + geom_point() + 
-  facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
-  ggtitle('MCMC vs. Map, upper')
-
-plot(g3)
+# g1 = ggplot(mcmcmap, aes(x = mval, y =  mcval)) + theme_dark() + geom_point() + 
+#   facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
+#   ggtitle('MCMC vs. Map, yhat')
+# 
+# plot(g1)
+# 
+# g2 = ggplot(mcmcmap, aes(x = mlow, y =  mclow)) + theme_dark() + geom_point() + 
+#   facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
+#   ggtitle('MCMC vs. Map, lower')
+# 
+# plot(g2)
+# 
+# g3 = ggplot(mcmcmap, aes(x = mupp, y =  mcupp)) + theme_dark() + geom_point() + 
+#   facet_wrap(~id, scales = 'free') + geom_abline(slope = 1, intercept = 0) +
+#   ggtitle('MCMC vs. Map, upper')
+# 
+# plot(g3)
 
 #Defaults: MAP, with .8 interval, sps of 10
 a1[type == 'original' & !between(value, yhat_lower, yhat_upper), type := 'original, extreme']
 g = ggplot() +
-  geom_point(data = a1[type != 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
-  geom_line(data = a1[type == 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_point(data = a1[id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_line(data = a1[id != 5665], aes(x = ds, y = yhat), color = 'black') +
   facet_wrap(~id) + theme_dark() +
-  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual')
+  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual') + ggtitle('MAP; .8; 10')
 plot(g)
+
+g = ggplot(data = a1[type != 'pred'], aes(x = value - yhat, group = type, fill = type)) +
+  geom_histogram(bins = 100) + facet_wrap(~id) + theme_dark() +
+  scale_fill_brewer(type = 'qual') + ggtitle('MAP; .8; 10')
+plot(g)  
 
 #MCMC, with .8 interval, sps of 10
 a2[type == 'original' & !between(value, yhat_lower, yhat_upper), type := 'original, extreme']
 g = ggplot() +
-  geom_point(data = a2[type != 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
-  geom_line(data = a2[type == 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_point(data = a2[id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_line(data = a2[id != 5665], aes(x = ds, y = yhat), color = 'black') +
   facet_wrap(~id) + theme_dark() +
-  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual')
+  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual') + ggtitle('MCMC; .8; 10')
 plot(g)
+
+g = ggplot(data = a2[type != 'pred'], aes(x = value - yhat, group = type, fill = type)) +
+  geom_histogram(bins = 100) + facet_wrap(~id) + theme_dark() +
+  scale_fill_brewer(type = 'qual') + ggtitle('MCMC; .8; 10')
+plot(g)  
 
 #MAP, .8 interval, sps of 20
 a3[type == 'original' & !between(value, yhat_lower, yhat_upper), type := 'original, extreme']
 g = ggplot() +
-  geom_point(data = a3[type != 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
-  geom_line(data = a3[type == 'pred'& id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_point(data = a3[id != 5665], aes(x = ds, y = value, group = type, color = type)) +
+  geom_line(data = a3[id != 5665], aes(x = ds, y = yhat), color = 'black') +
   facet_wrap(~id) + theme_dark() +
-  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual')
+  scale_color_brewer(type = 'qual') + scale_fill_brewer(type = 'qual') + ggtitle('MAP; .8; 20')
 plot(g)
 
+g = ggplot(data = a3[type != 'pred'], aes(x = value - yhat, group = type, fill = type)) +
+  geom_histogram(bins = 100) + facet_wrap(~id) + theme_dark() +
+  scale_fill_brewer(type = 'qual') + ggtitle('MAP; .8; 20')
+plot(g)  
+
+dev.off()
 # #More wiggle room
 # r3[type == 'original' & !between(value, yhat_lower, yhat_upper), type := 'original, extreme']
 # g = ggplot() +

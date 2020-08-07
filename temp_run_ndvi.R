@@ -46,7 +46,7 @@ for(sss in 1:nrow(ras2run)){
   
   #bbb = do_ras(sss, ras2run)
   source('~/Documents/code/trends_harmonic_patterns/change_analysis_regression.R')
-  source('~/Documents/code/trends_harmonic_patterns/mankendall.R')
+  #source('~/Documents/code/trends_harmonic_patterns/mankendall.R')
   print(paste(Sys.time(), sss))
   
 }  
