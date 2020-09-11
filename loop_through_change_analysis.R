@@ -8,12 +8,12 @@ library('tools')
 library('prophet')
 sg = readRDS('/media/dan/summary_grid.rds')
 
-ras2run = sg[time == "" & funk == "" & variables %in% c('LST_Night_1km', 'EVI', 'avg_rad', 'LST_Day_1km', "NDVI"),]
+ras2run = sg[time == "" & funk == "" ,] #variables %in% c("NDVI") & city %in% 'Dakar'
 #ras2run = sg[time == "" & funk == "" & variables %in% c('NDVI'),]
 source('~/Documents/code/trends_harmonic_patterns/prophet.R')
 #for(sss in 1:nrow(ras2run)){
 #blah = lapply(10:13, function(sss) {
-blah = mclapply(10:nrow(ras2run), function(sss) {
+blah = mclapply(1:nrow(ras2run), function(sss) {
   print(paste(Sys.time(), sss))
   fp = ras2run[sss, raspath]
   metadata = ras2run[sss,]
@@ -43,10 +43,10 @@ blah = mclapply(10:nrow(ras2run), function(sss) {
   
   window_val_select <- 23 #windowing-- usually refers to the number of layers in a year
   
-  #bbb = do_ras(sss, ras2run)
+  bbb = do_ras(sss, ras2run)
   #source('~/Documents/code/trends_harmonic_patterns/change_analysis_regression.R')
-  source('~/Documents/code/trends_harmonic_patterns/mankendall.R')
-  print(paste(Sys.time(), sss))
+  #source('~/Documents/code/trends_harmonic_patterns/mankendall.R')
+  #print(paste(Sys.time(), sss))
   return(bbb)
   
 #})  
