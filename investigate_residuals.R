@@ -110,7 +110,6 @@ for(ui in c(c(.7,.8,.9,.95,.99))){
   lower = subset(readAll(brick(file.path(in_dir,paste0('output_',bn),subfol,paste0(bn, '_', 'yhat_lower', '.tif')))), select_dates)
   yhat = subset(readAll(brick(file.path(in_dir,paste0('output_',bn),subfol,paste0(bn, '_', 'yhat', '.tif')))), select_dates)
   xtreme = !(base<upper & base>lower)
-  names(xtreme) = nnn
   
   base_ex = melt_ras(raster::extract(base, selpx), 'value')[,var := 'NDVI']
   yhat_ex = melt_ras(raster::extract(yhat, selpx), 'value')[, var := 'Pred']
@@ -120,7 +119,7 @@ for(ui in c(c(.7,.8,.9,.95,.99))){
   base_ex = merge(base_ex, n, by = 'timestep', all.x = T)
   yhat_ex = merge(yhat_ex, n, by = 'timestep', all.x = T)
   
-  
+  names(xtreme) = nnn
   pdf(paste0('/media/dan/prophet_pixel_daressalaam_pixel_plots_',ui,'.pdf'), width = 10, height = 9)
   for(lll in unique(selpx$Final_Labe)){
     draw_base = base_ex[id %in% which(selpx$Final_Labe==lll)]
