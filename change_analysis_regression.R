@@ -56,10 +56,10 @@ create_dir_fun <- function(outDir,out_suffix=NULL){
 }
 
 #Benoit setup
-script_path <- "/media/dan/Data/trend_and_harmonic_regression/scripts"
+script_path <- "C:/Users/Me/Documents/code/trends_harmonic_patterns"
 
-harmonic_regression_functions <- "harmonic_regression_functions_06042019.R"
-trend_methods_time_series_functions <- "trend_methods_time_series_functions_06102019.R"
+harmonic_regression_functions <- "harmonic_regression_functions.R"
+trend_methods_time_series_functions <- "trend_methods_time_series_functions.R"
 source(file.path(script_path,harmonic_regression_functions))
 source(file.path(script_path,trend_methods_time_series_functions))
 
@@ -67,22 +67,25 @@ source(file.path(script_path,trend_methods_time_series_functions))
 #####  Parameters and argument set up ###########
 
 #ARGS 1
-in_dir <- "/media/dan/Data/trend_and_harmonic_regression/data"
+in_dir <- "C:/Users/Me/Documents/react/rita/VI_16Days_1Km_v6/"
 #data in:/media/dan/processed/MOD13A1/latlong
 #ARGS 2
-out_dir <- "/media/dan/Data/trend_and_harmonic_regression/outputs"
+out_dir <- "C:/Users/Me/Documents/react/rita/outputs"
 #ARGS 3
-infile_name_raster <- "Ouagadougou_MOD13A1_006_NDVI_2001_2016.tif"
+infile_name_raster <- "rita_ndvi.tif"
 
+r = brick(file.path(in_dir, infile_name_raster))
+dts = substr(names(r),nchar(names(r))-7, nchar(names(r)))
+dts = as.Date(dts, '%Y_%j')
 #ARGS 4
 #start_date <- "2004-01-01"
-start_date <- "2012-11-01"  #new data starts in November 2012
+start_date <- min(dts)  #new data starts in November 2012
 #ARGS 5
 end_date <- NULL
 #ARGS 6
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 #ARGS 7
-out_suffix <-"Ouagadougou_MOD13A1_006_NDVI" #output suffix for the files and ouptut folder #param 12
+out_suffix <-"rita_ndvi" #output suffix for the files and ouptut folder #param 12
 #ARGS 8
 num_cores <- 3 # number of cores
 #ARGS 9
@@ -124,7 +127,7 @@ r <- brick(infile_name_raster)
 names(r)
 #if not true, we have missing layers, this should be spotted using the time series names(dates)/
 #Date should be added as descriptions in the tif!!
-nlayers(r)==16*23
+nlayers(r)==2*23
 
 plot(r,y=1)
 NAvalue(r)
