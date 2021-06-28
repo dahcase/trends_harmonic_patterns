@@ -1,8 +1,8 @@
 library('terra')
 library('sf')
-area = "C:/Users/Me/Documents/react/new_strata_rita_10282017.shp"
+area = "/media/dan/rita/studyarea/new_strata_rita_10282017.shp"
 
-raspath = 'C:/Users/Me/Documents/react/rita/VI_16Days_1Km_v6/NDVI'
+raspath = '/media/dan/rita/VI_16Days_1Km_v6/NDVI'
 r = rast(list.files(raspath, 'tif', full.names = T))
 
 ashp = st_read(area)

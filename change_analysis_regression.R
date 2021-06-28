@@ -56,7 +56,7 @@ create_dir_fun <- function(outDir,out_suffix=NULL){
 }
 
 #Benoit setup
-script_path <- "C:/Users/Me/Documents/code/trends_harmonic_patterns"
+script_path <- "/home/dan/Documents/code/trends_harmonic_patterns"
 
 harmonic_regression_functions <- "harmonic_regression_functions.R"
 trend_methods_time_series_functions <- "trend_methods_time_series_functions.R"
@@ -67,10 +67,10 @@ source(file.path(script_path,trend_methods_time_series_functions))
 #####  Parameters and argument set up ###########
 
 #ARGS 1
-in_dir <- "C:/Users/Me/Documents/react/rita/VI_16Days_1Km_v6/"
+in_dir <- "/media/dan/rita/VI_16Days_1Km_v6/"
 #data in:/media/dan/processed/MOD13A1/latlong
 #ARGS 2
-out_dir <- "C:/Users/Me/Documents/react/rita/outputs"
+out_dir <- "/media/dan/rita/outputs"
 #ARGS 3
 infile_name_raster <- "rita_ndvi.tif"
 
@@ -87,7 +87,7 @@ create_out_dir_param=TRUE #create a new ouput dir if TRUE
 #ARGS 7
 out_suffix <-"rita_ndvi" #output suffix for the files and ouptut folder #param 12
 #ARGS 8
-num_cores <- 3 # number of cores
+num_cores <- 5 # number of cores
 #ARGS 9
 file_format <- ".tif"
 #ARGS 10
@@ -127,7 +127,7 @@ r <- brick(infile_name_raster)
 names(r)
 #if not true, we have missing layers, this should be spotted using the time series names(dates)/
 #Date should be added as descriptions in the tif!!
-nlayers(r)==2*23
+nlayers(r)==length(unique(year(dts)))*23
 
 plot(r,y=1)
 NAvalue(r)
