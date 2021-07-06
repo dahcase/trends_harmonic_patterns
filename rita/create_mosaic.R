@@ -14,3 +14,4 @@ r2[r2<-2000] <- NA
 r2 = r2*0.0001
 
 raster::writeRaster(r2, file.path(dirname(raspath), 'rita_ndvi.tif'), overwrite = T)
+
