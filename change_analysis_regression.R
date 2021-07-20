@@ -85,7 +85,7 @@ end_date <- NULL
 #ARGS 6
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 #ARGS 7
-out_suffix <-"rita_ndvi" #output suffix for the files and ouptut folder #param 12
+out_suffix <-"rita_ndvi2" #output suffix for the files and ouptut folder #param 12
 #ARGS 8
 num_cores <- 5 # number of cores
 #ARGS 9
