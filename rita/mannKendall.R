@@ -7,11 +7,13 @@ runmk = function(r){
     return(as.numeric(a[[2]][1]))
   }
   #make things data.tabley
-  blah =setDT(as.data.frame(r))
-  blah[, id:= .I]
-  blah = melt(blah, id.vars = 'id', variable.factor = F)
+  blah =setDT(as.data.frame(r, cells = TRUE, na.rm = FALSE)) #terra instructions
+  blah = melt(blah, id.vars = 'cell', variable.factor = F)
   #res = blah[, as.integer(mkcalc(value)<.05), by = 'id']
-  res = blah[, mkcalc(value), by = 'id']
+  res = blah[, mkcalc(value), by = 'cell']
   rr = r[[1]]
+  setorder(res, cell)
   rr[] = res[, V1]
+  
+  rr
 }

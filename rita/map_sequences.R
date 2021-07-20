@@ -4,7 +4,7 @@ library('rasterVis')
 library('ggplot2')
 library('sf')
 library('data.table')
-
+source('/home/dan/Documents/code/trends_harmonic_patterns/rita/mannKendall.R')
 ooot = '/media/dan/rita/outputs/output_rita_ndvi2/' 
 yyy = 1:16
 a1 = file.path(ooot, glue('rita_ndvi_amplitude_year_{yyy}_A_1.tif'))
@@ -20,9 +20,13 @@ area = "/media/dan/rita/studyarea/new_strata_rita_10282017.shp"
 area = st_read(area, quiet = T)
 area = st_transform(area, crs(rast(ndvi)))
 make_map = function(x, title = '', years = 2001:2016){
-  stopifnot(all(file.exists(x)))
   
-  r = rast(x)
+  if(!inherits(x, 'SpatRaster')){
+    stopifnot(all(file.exists(x)))
+    r = rast(x)
+  } else{
+    r = x
+  }
   
   if(!is.null(years)){
     stopifnot(length(years) == length(names(r)))
@@ -113,4 +117,17 @@ pdf(file.path('/media/dan/rita/outputs/viz/rita_theilsen_boxplot.pdf'), height =
 g
 dev.off()
 
-
+#run the kendallers
+#for each var?
+mk = lapply(vars, function(z) runmk(rast(z)))
+mk = lapply(seq_along(vars), function(z){
+  r = mk[[z]]
+  names(r) <- names(vars)[z]
+  r
+})
+names(mk) = names(vars)
+#make mann kendall maps
+mkm = lapply(seq_along(vars), function(z) make_map(mk[[z]], paste0('Mann Kendall for ', names(mk)[z]), NULL))
+pdf(file.path('/media/dan/rita/outputs/viz/rita_mk_maps.pdf'), height =5, width = 8)
+mkm
+dev.off()
